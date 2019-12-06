@@ -80,6 +80,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   name: 'Pos',
   data () {
@@ -104,103 +105,32 @@ export default {
           price: 8,
           count:1
       }],
-      hotGoods:[
-        {
-            goodsId:1,
-            goodsName:'香辣鸡腿堡',
-            price:18
-        }, {
-            goodsId:2,
-            goodsName:'田园鸡腿堡',
-            price:15
-        }, {
-            goodsId:3,
-            goodsName:'和风汉堡',
-            price:15
-        }, {
-            goodsId:4,
-            goodsName:'快乐全家桶',
-            price:80
-        }, {
-            goodsId:5,
-            goodsName:'脆皮炸鸡腿',
-            price:10
-        }, {
-            goodsId:6,
-            goodsName:'魔法鸡块',
-            price:20
-        }, {
-            goodsId:7,
-            goodsName:'可乐大杯',
-            price:10
-        }, {
-            goodsId:8,
-            goodsName:'雪顶咖啡',
-            price:18
-        }, {
-            goodsId:9,
-            goodsName:'大块鸡米花',
-            price:15
-        }, {
-            goodsId:20,
-            goodsName:'香脆鸡柳',
-            price:17
-        }
-      ],
-      type0Goods:[
-          {
-              goodsId:1,
-              goodsImg:"http://p0.meituan.net/xianfu/549f44bcf8326227d355aa3539ebd52f340133.png",
-              goodsName:'香辣鸡腿堡',
-              price:18
-          }, {
-              goodsId:2,
-              goodsImg:"http://p1.meituan.net/xianfu/11d12a87c1a7aa58fa677c7b966b6594323357.png",
-              goodsName:'田园鸡腿堡',
-              price:15
-          }, {
-              goodsId:3,
-              goodsImg:"http://p0.meituan.net/xianfu/549f44bcf8326227d355aa3539ebd52f340133.png",
-              goodsName:'和风汉堡',
-              price:15
-          }, {
-              goodsId:4,
-               goodsImg:"http://p1.meituan.net/xianfu/11d12a87c1a7aa58fa677c7b966b6594323357.png",
-              goodsName:'快乐全家桶',
-              price:80
-          }, {
-              goodsId:5,
-               goodsImg:"http://p0.meituan.net/xianfu/549f44bcf8326227d355aa3539ebd52f340133.png",
-              goodsName:'脆皮炸鸡腿',
-              price:10
-          }, {
-              goodsId:6,
-               goodsImg:"http://p1.meituan.net/xianfu/11d12a87c1a7aa58fa677c7b966b6594323357.png",
-              goodsName:'魔法鸡块',
-              price:20
-          }, {
-              goodsId:7,
-               goodsImg:"http://p0.meituan.net/xianfu/549f44bcf8326227d355aa3539ebd52f340133.png",
-              goodsName:'可乐大杯',
-              price:10
-          }, {
-              goodsId:8,
-               goodsImg:"http://p1.meituan.net/xianfu/11d12a87c1a7aa58fa677c7b966b6594323357.png",
-              goodsName:'雪顶咖啡',
-              price:18
-          }, {
-              goodsId:9,
-               goodsImg:"http://p0.meituan.net/xianfu/549f44bcf8326227d355aa3539ebd52f340133.png",
-              goodsName:'大块鸡米花',
-              price:15
-          }, {
-              goodsId:20,
-               goodsImg:"http://p0.meituan.net/xianfu/549f44bcf8326227d355aa3539ebd52f340133.png",
-              goodsName:'香脆鸡柳',
-              price:17
-          }
-      ]
+      hotGoods: [],
+      type0Goods:[]
     }
+  },
+  methods: {
+    getHotGoods () {
+      axios.get('/api/hotGoods.json').then(res => {
+        if(res.status && res.data) {
+          const data = res.data.data
+          this.hotGoods = data.hotGoods
+        }
+      })
+    },
+    getTypeGoods () {
+      axios.get('/api/typeGoods.json').then(res => {
+        if(res.status && res.data) {
+          const data = res.data.data
+          console.log(data)
+          this.type0Goods = data.type0Goods
+        }
+      })
+    }
+  },
+  created () {
+    this.getHotGoods()
+    this.getTypeGoods()
   },
   mounted () {
     var orderHeight = document.body.clientHeight
