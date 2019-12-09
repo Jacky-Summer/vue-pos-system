@@ -10,24 +10,24 @@
                     <el-table-column prop="count" label="数量" width="50"></el-table-column>
                     <el-table-column prop="price" label="金额" width="70"></el-table-column>
                     <el-table-column label="操作" width="100" fixed="right">
-                      <template>
-                        <el-button type="text" size="small" >删除</el-button>
-                        <el-button type="text" size="small" >增加</el-button>
+                      <template slot-scope="scope">
+                        <el-button type="text" size="small" @click="delSingleGoods(scope.row)">删除</el-button>
+                        <el-button type="text" size="small" @click="addOrderList(scope.row)">增加</el-button>
                      </template>
                     </el-table-column>
                   </el-table>
-
+ 
                   <div class="totalDiv">
                     <small>数量：</small>
-                    <strong>0</strong> &nbsp;&nbsp;&nbsp;&nbsp;
+                    <strong>{{ totalCount }}</strong> &nbsp;&nbsp;&nbsp;&nbsp;
                     <small>总计：</small>
-                    <strong>0</strong> 元
+                    <strong>{{ totalMoney }}</strong> 元
                   </div>
 
                   <div class="order-btn">
                     <el-button type="warning">挂单</el-button>
-                    <el-button type="danger">删除</el-button>
-                    <el-button type="success"> 结账</el-button>
+                    <el-button type="danger" @click="delAllGoods">删除</el-button>
+                    <el-button type="success" @click="checkout"> 结账</el-button>
                   </div>
                 </el-tab-pane>
                 <el-tab-pane label="外卖">
@@ -44,9 +44,9 @@
                 <div class="title">常用商品</div>
                 <div class="hot-goods-list">
                     <ul>
-                      <li v-for="item in hotGoods" :key="item.goodsId">
-                        <span>{{ item.goodsName }}</span>
-                        <span class="hot-price">￥{{ item.price }}元</span>
+                      <li v-for="goods in hotGoods" :key="goods.goodsId" @click="addOrderList(goods)">
+                        <span>{{ goods.goodsName }}</span>
+                        <span class="hot-price">￥{{ goods.price }}元</span>
                       </li>
                     </ul>
                 </div>
@@ -55,10 +55,10 @@
                 <el-tabs class="tabs">
                   <el-tab-pane label="主食">
                     <ul class='cookList'>
-                      <li v-for="item in type0Goods" :key="item.goodsId">
-                        <span class="foodImg"><img :src="item.goodsImg" width="100%"></span>
-                        <span class="foodName">{{ item.goodsName }}</span>
-                        <span class="foodPrice">￥{{ item.price }}元</span>
+                      <li v-for="goods in type0Goods" :key="goods.goodsId" @click="addOrderList(goods)">
+                        <span class="foodImg"><img :src="goods.goodsImg" width="100%"></span>
+                        <span class="foodName">{{ goods.goodsName }}</span>
+                        <span class="foodPrice">￥{{ goods.price }}元</span>
                       </li>
                   </ul>
                   </el-tab-pane>
@@ -85,28 +85,12 @@ export default {
   name: 'Pos',
   data () {
     return {
-      tableData: [{    
-          goodsName: '可口可乐',
-          price: 8,
-          count:1
-        }, {
-          
-          goodsName: '香辣鸡腿堡',
-          price: 15,
-          count:1
-        }, {
-         
-          goodsName: '爱心薯条',
-          price: 8,
-          count:1
-        }, {
-         
-          goodsName: '甜筒',
-          price: 8,
-          count:1
-      }],
+      tableData: [],
       hotGoods: [],
-      type0Goods:[]
+      type0Goods:[],
+      totalMoney: 0, //订单总价格
+      totalCount: 0  //订单商品总数量
+
     }
   },
   methods: {
@@ -122,10 +106,75 @@ export default {
       axios.get('/api/typeGoods.json').then(res => {
         if(res.status && res.data) {
           const data = res.data.data
-          console.log(data)
           this.type0Goods = data.type0Goods
         }
       })
+    },
+    addOrderList(goods) {
+
+      this.totalMoney = 0; //汇总数量清0
+      this.totalCount = 0;
+      
+      //判断是否这个商品已经存在于订单列表
+      let isHave = false;
+      for(let i = 0; i < this.tableData.length; i++) {
+        if(this.tableData[i].goodsId === goods.goodsId) {
+          isHave = true;
+        }
+      }
+      //根据isHave的值判断订单列表中是否已经有此商品
+      if(isHave) {
+        let arr = this.tableData.filter( o => o.goodsId === goods.goodsId)
+        arr[0].count++;
+      }else {
+        let data = { 
+          goodsId: goods.goodsId,
+          goodsName: goods.goodsName,
+          price: goods.price,
+          count: 1
+        }
+        this.tableData.push(data)
+      }
+
+      this.getAllMoney();
+    },
+    getAllMoney () {
+      this.totalCount = 0;
+      this.totalMoney = 0;
+      if(this.tableData) {
+        this.tableData.forEach(goods => {
+        this.totalCount += goods.count
+        this.totalMoney += goods.price * goods.count
+      });
+     }
+    },
+    delSingleGoods (goods) {
+     this.tableData.forEach((ele, index) => {
+       if(ele.goodsId === goods.goodsId) {
+         this.tableData.splice(index, 1)
+       }
+     })
+     this.getAllMoney();
+    },
+    delAllGoods () {
+      this.tableData = []
+      this.totalCount = 0
+      this.totalMoney = 0
+    },
+    checkout () {
+      if(this.totalCount !== 0) {
+        this.delAllGoods()
+        this.$message({
+          message: '结账成功，欢迎下次光临！',
+          type: 'success'
+        });
+      }else {
+        this.$message({
+          message: '不能空结，请先点单！',
+          type: 'error'
+        });
+      }
+      
     }
   },
   created () {
@@ -176,6 +225,7 @@ export default {
   padding: 15px;
   margin: 10px;
   background-color: #fff;
+  cursor: pointer;
 }
 .hot-price{
   color:#58B7FF; 
@@ -213,4 +263,5 @@ export default {
   padding-left: 10px;
   padding-top:10px;
 }
+  
 </style>
