@@ -1,6 +1,18 @@
 # pos
 
-> A Vue.js project
+> KFC收银管理系统（收银模块）
+
+## 技术栈
+
+Vue+Webpack+Element+Axios+vueRouter
+
+## 效果演示
+
+完成收银模块的制作
+
+<p align="center">
+	<img src="https://github.com/Jacky-Summer/vue-pos-system/blob/master/static/demo.gif" alt=""  width="600">
+</p>
 
 ## Build Setup
 
