@@ -11,7 +11,7 @@ Vue+Webpack+Element+Axios+vueRouter
 完成收银模块的制作
 
 <p align="center">
-	<img src="https://github.com/Jacky-Summer/vue-pos-system/blob/master/static/demo.gif" alt=""  width="600">
+	<img src="https://github.com/Jacky-Summer/vue-pos-system/blob/master/static/demo.gif" alt=""  width="900">
 </p>
 
 ## Build Setup
